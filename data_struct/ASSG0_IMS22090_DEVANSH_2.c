@@ -4,10 +4,10 @@
 int main()
 {
     int n, count=0, k;
+    scanf("%d", &n);
     int A[n], seen[n];
     int index[n];
-    int flag, flag2 = 0;
-    scanf("%d", &n);
+    int flag=0, flag2 = 0;
     for (size_t i = 0; i < n; i++)
     {
         scanf("%d", &A[i]);
@@ -18,6 +18,9 @@ int main()
         count = 0;
         for (size_t p = 0; p < i; p++){
             if (A[p] == A[i]){
+                flag2 = 1;
+            }
+            if (flag2 == 1) {
                 continue;
             }
         }
