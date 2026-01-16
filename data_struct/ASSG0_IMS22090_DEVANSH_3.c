@@ -28,7 +28,7 @@ int main()
         gcd = calc_gcd(b,a);
     }
     else{
-        printf("%d", a);
+        gcd = a;
     }
     
     printf("%d", gcd);
