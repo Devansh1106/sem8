@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
     int rank, size;
-    int* a=NULL;
+    double* a=NULL;
     int n = 1000000;
     double sum = 0.0, final_sum = 0.0, avg = 0.0, sd = 0.0;
     double* sums=NULL;
@@ -17,21 +17,22 @@ int main(int argc, char **argv)
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
     int m = n/size;
+    srand(3);
 
     // Creating the array
     if (rank == 0){
-        a = malloc(n * sizeof(int));
+        a = malloc(n * sizeof(double));
         sums = malloc(size * sizeof(double));
         for (size_t i = 0; i < n; i++){
-            a[i] = 12;
+            a[i] = rand();
         }
     }
     else{
-        a = malloc(m * sizeof(int));
+        a = malloc(m * sizeof(double));
     }
 
     // Distributed average of the elements of the array
-    MPI_Scatter(a, m, MPI_INT, a, m, MPI_INT, 0, comm);    
+    MPI_Scatter(a, m, MPI_DOUBLE, a, m, MPI_DOUBLE, 0, comm);    
     
     for (size_t i = 0; i < m; i++){
         sum = sum + a[i];
