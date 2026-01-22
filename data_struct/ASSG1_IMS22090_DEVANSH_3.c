@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
 unsigned int merge_sort(int* A, int p, int r);
 unsigned int merge(int* A, int p, int q, int r);
@@ -65,7 +66,9 @@ unsigned int merge(int* A, int p, int q, int r){
     }
     size_t i = 0; size_t j = 0, k = p;
     int n1 = q-p+1, n2 = r-q;
-    while (i < n1 && j < n2){
+    A_1[n1] = INT_MAX;
+    A_2[n2] = INT_MAX;
+    for (int k = p; k <= r; k++){
         count++;
         if (A_1[i] <= A_2[j]){
             A[k] = A_1[i];
@@ -75,18 +78,6 @@ unsigned int merge(int* A, int p, int q, int r){
             A[k] = A_2[j];
             j++;
         }
-        k++;
-    }
-    while (i < n1) {
-        A[k] = A_1[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        A[k] = A_2[j];
-        j++;
-        k++;
     }
     free(A_1);
     free(A_2);
