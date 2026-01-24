@@ -1,3 +1,5 @@
+// Merge sort
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -33,39 +35,35 @@ int main()
 }
 
 unsigned int merge_sort(int* A, int p, int r){
+    unsigned int count=0;
     if (p < r){
         int q = (p+r)/2;
-        merge_sort(A, p, q);
-        merge_sort(A, q+1, r);
-        unsigned int count = merge(A, p, q, r);
-        return count;
+        count += merge_sort(A, p, q);
+        count += merge_sort(A, q+1, r);
+        count += merge(A, p, q, r);
     }
+        return count;
 }
 
 unsigned int merge(int* A, int p, int q, int r){
-    unsigned int n = r-p +1;
+    unsigned int n1, n2;
     unsigned int count = 0;
     int mid = 0;
     int* A_1;
     int* A_2;
-    
-    if (n % 2 == 0){ 
-        mid = n/2; 
-    }
-    else {
-        mid = (n/2) + 1; 
-    }
 
-    A_1 = malloc(mid * sizeof(int));
-    A_2 = malloc((n-mid) * sizeof(int));
-    for (size_t i = 0; i<mid; i++){
+    n1 = q-p+1;
+    n2 = r-q;
+
+    A_1 = malloc((n1+1) * sizeof(int));
+    A_2 = malloc((n2+1) * sizeof(int));
+    for (size_t i = 0; i<n1; i++){
         A_1[i] = A[p+i];
     }
-    for (size_t i = 0; i<=r-p-mid; i++){
-        A_2[i] = A[p+mid+i];
+    for (size_t j = 0; j<n2; j++){
+        A_2[j] = A[q+1+j];
     }
     size_t i = 0; size_t j = 0, k = p;
-    int n1 = q-p+1, n2 = r-q;
     A_1[n1] = INT_MAX;
     A_2[n2] = INT_MAX;
     for (int k = p; k <= r; k++){

@@ -1,3 +1,5 @@
+// Bubble sort
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -27,7 +29,6 @@ int main()
         }
     }
 
-    printf("\n");
     for(size_t i = 0; i<n; i++){
         printf("%d ", A[i]);
     }

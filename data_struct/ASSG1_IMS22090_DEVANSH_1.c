@@ -1,3 +1,5 @@
+// selection sort
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,12 +21,16 @@ int main()
     }
 
     for (size_t i = 0; i<n-1; i++){
+        size_t min_id = i;
         for (size_t j = i+1; j<n; j++){
-            if (A[i] > A[j]){
-                temp = A[j];
-                A[j] = A[i];
-                A[i] = temp;
+            if (A[j] < A[min_id]){
+                min_id = j;
             }
+        }
+        if (min_id != i){
+            temp = A[min_id];
+            A[min_id] = A[i];
+            A[i] = temp;
         }
     }
 
