@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
     int rank, size;
-    double start_time, end_time;
+    double start_time, end_time, elapsed = 0.0;
     MPI_Comm comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         min_in.val = local_min;
         min_in.rank = rank;
         end_time = MPI_Wtime();
+        elapsed = end_time - start_time;
     }
     else {
         start_time = MPI_Wtime();
@@ -77,14 +78,19 @@ int main(int argc, char **argv)
         min_in.val = local_min;
         min_in.rank = rank;
         end_time = MPI_Wtime();
+        elapsed = end_time - start_time;
     }
     printf("Local sum of elements of array: %lld on rank %d.\n", local_sum, rank);
     printf("Local product of elements of array: %lld on rank %d.\n", local_prod, rank);
 
+    start_time = MPI_Wtime();
     MPI_Reduce(&local_sum, &sum, 1, MPI_INT, MPI_SUM, 0, comm);
     MPI_Reduce(&local_prod, &prod, 1, MPI_INT, MPI_PROD, 0, comm);
     MPI_Reduce(&max_in, &max_out, 1, MPI_2INT, MPI_MAXLOC, 0, comm);
     MPI_Reduce(&min_in, &min_out, 1, MPI_2INT, MPI_MINLOC, 0, comm);
+    end_time = MPI_Wtime();
+    elapsed += (start_time - end_time);
+    
 
     if (rank == 0){
         printf("Global max is %d on the rank %d.\n", max_out.val, max_out.rank);
@@ -93,7 +99,7 @@ int main(int argc, char **argv)
         printf("Product of all the elements of the array is %lld.\n", prod); 
     }
     MPI_Barrier(comm);
-    printf("Time taken by rank %d is: %f.\n", rank, end_time - start_time);
+    printf("Time taken by rank %d is: %f.\n", rank, elapsed);
     free(a);
     MPI_Finalize();
     return 0;
