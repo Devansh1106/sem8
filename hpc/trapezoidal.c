@@ -1,3 +1,5 @@
+// Trapezoidal rule in [0,1] using MPI
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,8 +10,6 @@ double fun(double x){
 }
 
 double trap(double a, double b, int local_n){
-    // double* mesh;
-    // mesh = malloc(local_n * sizeof(double));
     double h = (b-a)/(local_n-1);
 
     double approx = (fun(a) + fun(b))/2.0;
@@ -32,14 +32,14 @@ int main(int argc, char **argv)
     MPI_Comm comm = MPI_COMM_WORLD;
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
-    a = 0; b = 1; n = 100;
+    a = 0; b = 1; n = 5000;
     double h = (b-a)/size;
     int local_n = n/size;       // assuming n is divisible by size for now
 
-    // for (size_t i = 0; i < size; i++){
+
     a = rank*h;
-    b = a + (rank+1)*h;
-    // }
+    b = a + h;
+
     local_area = trap(a, b, local_n);
 
     MPI_Barrier(comm);
