@@ -99,7 +99,7 @@ int main(int argc, char **argv)
         printf("Product of all the elements of the array is %lld.\n", prod); 
     }
     MPI_Barrier(comm);
-    printf("Time taken by rank %d is: %f.\n", rank, elapsed);
+    printf("Time taken by rank %d is: %f seconds.\n", rank, elapsed);
     free(a);
     MPI_Finalize();
     return 0;
