@@ -1,4 +1,4 @@
-// matrix vector product (parallel)
+// matrix vector product (parallel): Only matrix is distributed and full vector is broadcasted on all ranks
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,37 +12,60 @@ int main(int argc, char **argv)
     MPI_Comm_rank(comm, &rank);
     MPI_Comm_size(comm, &size);
 
-    int** A=NULL;
+    double* A=NULL;
     int* vec=NULL;
-    int n = 100;
-    int local_n = n/size;               // n % size should be 0
+    double* result_vec=NULL;
+    int n = 10000;
+    int local_n = n/size;            // n % size should be 0 for now
+    double start_time = 0.0;
+    double end_time = 0.0, time = 0.0;
 
-
-    if (rank = 0){
-        A = malloc(n * n * sizeof(int));
+    if (rank == 0){
+        A = malloc(n * n * sizeof(double));
+        vec = malloc(n * sizeof(double));
+        result_vec = calloc(n, sizeof(double));
         for(size_t i = 0; i < n; i++){
-            A[i] = malloc(n * sizeof(int));
+            // A[i] = malloc(n * sizeof(double));
             for(size_t j = 0; j < n; j++){
-                A[i][j] = 1.0;
+                A[i * n + j] = 1.0;
             }
+            vec[i] = 1.0;
         }
-        MPI_Scatter();
+        start_time = MPI_Wtime();
+        MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
+        MPI_Bcast(vec, n, MPI_DOUBLE, 0, comm); 
+        end_time = MPI_Wtime();
+        time = start_time - end_time;
     }
     else{
-        A = malloc(local_n * local_n * sizeof(int));
-        for(size_t i = 0; i < local_n; i++){
-            A[i] = malloc(local_n * sizeof(int));
-            for(size_t j = 0; j < local_n; j++){
-                A[i][j] = 1.0;
-            }
+        A = malloc(local_n * n * sizeof(double));
+        vec = malloc(n * sizeof(double));
+        result_vec = calloc(local_n, sizeof(double));
+
+        MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
+        MPI_Bcast(vec, n, MPI_DOUBLE, 0, comm);
+    }
+
+    start_time = MPI_Wtime();
+    for(size_t i = 0; i < local_n; i++){
+        for(size_t j = 0; j < n; j++){
+            result_vec[i] += A[i * n + j] * vec[j];
         }
     }
+    MPI_Barrier(comm);
+    MPI_Gather(result_vec, local_n, MPI_DOUBLE, result_vec, local_n, MPI_DOUBLE, 0, comm);
+    end_time = MPI_Wtime();
+    time += (start_time - end_time);
 
-    for(size_t i = 0; i < local_n; i++){
-
+    if (rank == 0){
+        // for (size_t i = 0; i < n; i++){
+        //     printf("%f ", result_vec[i]);
+        // }
+        printf("\nTime taken is: %f sec.\n", end_time - start_time);
     }
-
-
+    free(A);
+    free(vec);
+    free(result_vec);
 
     MPI_Finalize();
     return 0;
