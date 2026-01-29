@@ -15,7 +15,7 @@ int main()
     for (size_t i = 0; i<n; i++){
         if (A[i] > 1000 || A[i] < -1000){
             printf("-1\n");
-            exit(1);
+            return 0;
         }
     }
 

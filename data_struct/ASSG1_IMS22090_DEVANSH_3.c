@@ -23,7 +23,7 @@ int main()
     for (size_t i = 0; i<n; i++){
         if (A[i] > 1000 || A[i] < -1000){
             printf("-1\n");
-            exit(1);
+            return 0;
         }
     }
     unsigned int count = merge_sort(A, 0, n-1);
@@ -39,7 +39,9 @@ unsigned int merge_sort(int* A, int p, int r){
     if (p < r){
         int q = (p+r)/2;
         count += merge_sort(A, p, q);
+        // merge_sort(A, p, q);
         count += merge_sort(A, q+1, r);
+        // merge_sort(A, q+1, r);
         count += merge(A, p, q, r);
     }
         return count;
