@@ -1,4 +1,4 @@
-// matrix vector product (parallel): Only matrix is distributed and full vector is broadcasted on all ranks
+// matrix vector product (parallel): Only matrix is distributed and full vector is broadcasted on all ranks (Block distribution)
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,5 @@
+// ping pong for size=2 only
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>

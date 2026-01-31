@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         printf("Average is %f.\n", avg);
     }
 
-    // Broadcasting the average and Standard deviation calculatio
+    // Broadcasting the average and Standard deviation calculation
     MPI_Bcast(&avg, 1, MPI_DOUBLE, 0, comm);
     sum = 0.0;
     final_sum = 0.0;
