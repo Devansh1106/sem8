@@ -46,7 +46,7 @@ exact_val .= 0.8862073482595212
 error_midpt .=  abs.(exact_val .- val_midpt)
 error_simpson .=  abs.(exact_val .- val_simpson)
 println("Errors for mid-point rule: ", error_midpt)
-println("Errors for mid-point rule: ", error_simpson)
+println("Errors for Simpsons rule: ", error_simpson)
 
 # PART B
 p = log(error_midpt[end-1]/error_midpt[end])/log(h[end-1]/h[end])
