@@ -5,9 +5,9 @@
 
 int main()
 {
-    unsigned int n;
-    scanf("%u", &n);
-    if (n > 1e9){
+    long long int n;
+    scanf("%lld", &n);
+    if (n > 1000000000LL){ // LL is for telling compiler to treat it as long long integer.
         printf("-1\n");
         return 0;
     }
