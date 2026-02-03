@@ -1,8 +1,8 @@
 // matrix-matrix product (parallel): block distribution
+// Matrix A has been distributed and matrix B has been broadcasted to everyone
+
 /* Flattening of A is row-major
 and flattening of B is column-major */
-// diagonal = n +1 
-// vector = n*2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,6 +49,7 @@ int main(int argc, char **argv)
         MPI_Bcast(B, (n*n), MPI_DOUBLE, 0, comm);
     }
 
+    // matrix-matrix multiplication
     start_time = MPI_Wtime();
     for (size_t k = 0; k < local_n_rows; k++){
         for(size_t i = 0; i < n; i++){
