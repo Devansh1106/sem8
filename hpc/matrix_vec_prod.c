@@ -25,7 +25,6 @@ int main(int argc, char **argv)
         vec = malloc(n * sizeof(double));
         result_vec = calloc(n, sizeof(double));
         for(size_t i = 0; i < n; i++){
-            // A[i] = malloc(n * sizeof(double));
             for(size_t j = 0; j < n; j++){
                 A[i * n + j] = 1.0;
             }
@@ -52,7 +51,6 @@ int main(int argc, char **argv)
             result_vec[i] += A[i * n + j] * vec[j];
         }
     }
-    MPI_Barrier(comm);
     MPI_Gather(result_vec, local_n, MPI_DOUBLE, result_vec, local_n, MPI_DOUBLE, 0, comm);
     end_time = MPI_Wtime();
     time += (start_time - end_time);
@@ -61,7 +59,7 @@ int main(int argc, char **argv)
         // for (size_t i = 0; i < n; i++){
         //     printf("%f ", result_vec[i]);
         // }
-        printf("\nTime taken is: %f sec.\n", end_time - start_time);
+        printf("Time taken is: %f sec.\n", end_time - start_time);
     }
     free(A);
     free(vec);
