@@ -1,53 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 int main()
 {
     unsigned int n;
     scanf("%u", &n);
-    getchar();
-    int key = 0;
-    int* A;
-    int count = 0;
-    int c;
-    int i = 0;
-    int* temp = malloc((1e9+1) * sizeof(int));
-    // char/string or bounds check
-    while ((c = getchar()) != '\n' && c != EOF) {
-        if (c < '0' || c > '9' || ((int)(c)) > 1000 || ((int)(c)) < -1000){
-            printf("%d", (int)(c));
-            printf("ji23");
-            printf("-1\n");
-            free(temp);
-            return 0;
-        }
-        else{
-            temp[i] = c;
-            i++;
-        }
-    }
-    for (size_t i = 0; i < 1e9+1; i++){
-        while(scanf("%d", &temp[i]) != 1){
-            printf("ji23");
-            printf("-1\n");
-            free(temp);
-            return 0;
-        }
-        if (i+1 >= n){
-            break;
-        }
-    }
-    // count check
-    printf("ji");
-    if(i != n){
+    if (n > 1e9){
         printf("-1\n");
-        free(temp);
         return 0;
     }
-    
-    int* temp_ptr = realloc(temp, n * sizeof(int));
-    A = temp_ptr;
+    getchar();
+    int key = 0;
+    char line[10000];
+    int* A;
+    int count = 0;
+    int i = 0;
+    A = malloc(n * sizeof(int));
+
+    // check for different cases!
+    if (fgets(line, sizeof(line), stdin)) {        
+        char* token = strtok(line, " \n");
+        while (token != NULL) {
+            for (size_t i = 0; i < strlen(token); i++){
+                if (!isdigit(token[i])){
+                    printf("-1\n");
+                    return 0;
+                }
+            }
+            int val = atoi(token);            
+            if (val > 1000 || val < -1000) {
+                printf("-1\n");
+                return 0;
+            }
+            if (count < n) {
+                A[count] = val;
+            }
+            count++;
+            token = strtok(NULL, " \n");
+        }
+        if (count != n){
+            printf("-1\n");
+            return 0;
+        }
+    }
+
+    // insertion sort logic
     for(int j = 1; j<n; j++){
         key = A[j];
         i = j-1;
@@ -60,6 +59,7 @@ int main()
     for(size_t i = 0; i<n; i++){
         printf("%d ", A[i]);
     }
-    free(temp);
+    printf("\n");
+    free(A);
     return 0;
 }
