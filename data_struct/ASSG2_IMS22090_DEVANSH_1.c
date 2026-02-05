@@ -24,7 +24,7 @@ int main()
         char* token = strtok(line, " \n");
         while (token != NULL) {
             for (size_t i = 0; i < strlen(token); i++){
-                if (!isdigit(token[i])){
+                if (!isdigit(token[i]) && token[i] != '-'){
                     printf("-1\n");
                     return 0;
                 }
