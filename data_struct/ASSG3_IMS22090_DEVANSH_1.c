@@ -32,9 +32,12 @@ void list_insert_tail(struct Node** head, int value) {
 }
 
 void list_insert_after(struct Node** head, int x, int y){
-    
+
 }
 
+void list_delete(struct Node** head, int x){
+    
+}
 
 
 int main()
