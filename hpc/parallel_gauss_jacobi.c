@@ -1,6 +1,4 @@
 // parallel gauss-jacobi method
-// diagonal = n +1 
-// vector = n*2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +21,7 @@ int main(int argc, char **argv)
     double* initial_guess=NULL;
     double* result_vec=NULL;
     double* temp=NULL;
-    int n = 3000; 
+    int n = 10; 
     int local_n = n/size;            // n % size should be 0 for now
     double start_time = 0.0;
     double end_time = 0.0, time = 0.0;
@@ -73,20 +71,23 @@ int main(int argc, char **argv)
     }
 
     start_time = MPI_Wtime();
-    while(abs(tol) > 1e-6 && iter != max_iter){
+    while((abs(tol) > 1e-6) && (iter != max_iter)){
         sum = 0.0;
         result_vec = matrix_vec_prod(A, initial_guess, n, result_vec, size, comm);
         for (size_t i = 0; i < local_n; i++){
             temp[i] = rhs_vec[rank*local_n + i] - result_vec[i];
             temp[i] = temp[i] / diag[i];
-            sum += (temp[i] * temp[i]);
-            temp[i] += initial_guess[rank*local_n + i];
+            // sum += (temp[i] * temp[i]);
+            printf("%f \n", temp[i] - initial_guess[rank*local_n + i]);
+            sum += abs(temp[i] - initial_guess[rank*local_n + i]);
+            // temp[i] = initial_guess[rank*local_n + i];
         }
+        printf("\n Sum %f: ", sum);
         MPI_Allgather(temp, local_n, MPI_DOUBLE, initial_guess, local_n, MPI_DOUBLE, comm);
         MPI_Allreduce(&sum, &tol, 1, MPI_DOUBLE, MPI_SUM, comm);
-        tol = sqrt(tol);
-        printf("\n%f \t%d", tol, rank);
-        printf("\t%d\n", iter);
+        // tol = sqrt(tol);
+        printf("\nTol: %f \t Rank:\t%d", tol, rank);
+        printf("\t Iter: \t%d\n", iter);
         iter++;
     }
     end_time = MPI_Wtime();
