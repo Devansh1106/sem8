@@ -1,4 +1,4 @@
-// parallel gauss-jacobi method
+// parallel gauss-jacobi method (when n % size == 0)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +21,7 @@ int main(int argc, char **argv)
     double* initial_guess=NULL;
     double* result_vec=NULL;
     double* temp=NULL;
-    int n = 10; 
+    int n = 1000; 
     int local_n = n/size;            // n % size should be 0 for now
     double start_time = 0.0;
     double end_time = 0.0, time = 0.0;
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     int iter = 0.0;
     double sum = 0.0;
     int flag = -1;
-    int max_iter = 500;
+    int max_iter = 10000;
 
     if (rank == 0){
         A = malloc(n * n * sizeof(double));
@@ -71,21 +71,16 @@ int main(int argc, char **argv)
     }
 
     start_time = MPI_Wtime();
-    while((abs(tol) > 1e-6) && (iter != max_iter)){
+    while((tol > 1e-4) && (iter != max_iter)){
         sum = 0.0;
         result_vec = matrix_vec_prod(A, initial_guess, n, result_vec, size, comm);
         for (size_t i = 0; i < local_n; i++){
             temp[i] = rhs_vec[rank*local_n + i] - result_vec[i];
             temp[i] = temp[i] / diag[i];
-            // sum += (temp[i] * temp[i]);
-            printf("%f \n", temp[i] - initial_guess[rank*local_n + i]);
-            sum += abs(temp[i] - initial_guess[rank*local_n + i]);
-            // temp[i] = initial_guess[rank*local_n + i];
+            sum += fabs(temp[i] - initial_guess[rank*local_n + i]);
         }
-        printf("\n Sum %f: ", sum);
         MPI_Allgather(temp, local_n, MPI_DOUBLE, initial_guess, local_n, MPI_DOUBLE, comm);
         MPI_Allreduce(&sum, &tol, 1, MPI_DOUBLE, MPI_SUM, comm);
-        // tol = sqrt(tol);
         printf("\nTol: %f \t Rank:\t%d", tol, rank);
         printf("\t Iter: \t%d\n", iter);
         iter++;
@@ -97,8 +92,8 @@ int main(int argc, char **argv)
             printf("Failed to converge, max iterations reached!\n");
         }
         else{
-            // printf("Solution: \n");
-            // for (size_t i = 0; i < n; i++){
+            printf("Solution: \n");
+            // for (size_t i = 0; i < 100; i++){
             //     printf("%f ", initial_guess[i]);
             // }
         }
