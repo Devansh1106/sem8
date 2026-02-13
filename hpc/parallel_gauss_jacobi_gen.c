@@ -1,4 +1,6 @@
-// parallel gauss-jacobi method (when n % size == 0)
+// parallel gauss-jacobi method (when n % size can be anything)
+
+// 23 / 4 = 6 6 6 5; rem = 23 % 4 = 3; local_n = ceil(23/4) + (rank < rem ? 1 : 0) 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +8,8 @@
 #include <mpi.h>
 
 double* matrix_vec_prod(double* A, double* vec, int n, double* result_vec, int size, MPI_Comm comm);
+void gauss_jacobi(double* A, double* rhs_vec, double* initial_guess, int n, int max_iter, double tol, int rank, int size, MPI_Comm comm);
+
 
 int main(int argc, char **argv)
 {
@@ -17,61 +21,84 @@ int main(int argc, char **argv)
 
     double* A=NULL;
     double* rhs_vec=NULL;
-    double* diag=NULL;
     double* initial_guess=NULL;
-    double* result_vec=NULL;
-    double* temp=NULL;
+    // double* sol=NULL;
     int n = 1000; 
-    int local_n = n/size;            // n % size should be 0 for now
-    double start_time = 0.0;
-    double end_time = 0.0, time = 0.0;
-    double tol = 1.0;
-    int iter = 0.0;
-    double sum = 0.0;
-    int flag = -1;
+    double max_tol = 1e-4;
     int max_iter = 10000;
+    // Load balancing
+    int rem = n % size;
+    int local_n = ceil(n/size) + (rank < rem ? 1 : 0);
 
     if (rank == 0){
         A = malloc(n * n * sizeof(double));
         rhs_vec = malloc(n * sizeof(double));
-        diag = malloc(n * sizeof(double));
-        initial_guess = calloc(n, sizeof(double));
-        result_vec = calloc(local_n, sizeof(double));
-        temp = calloc(local_n, sizeof(double));
+        initial_guess = calloc(n, sizeof(double)); // 0 as initial guess
+        // sol = calloc(n, sizeof(double));
 
         for(size_t i = 0; i < n; i++){
             for(size_t j = 0; j < n; j++){
                 A[i * n + j] = 1.0;
             }
-            A[i * n + i] = 0.0;
-            diag[i] = n;
+            A[i * n + i] = n;
             rhs_vec[i] = 1.0;
         }
-        start_time = MPI_Wtime();
-        MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
-        MPI_Scatter(diag, local_n, MPI_DOUBLE, diag, local_n, MPI_DOUBLE, 0, comm);
-        MPI_Bcast(rhs_vec, n, MPI_DOUBLE, 0, comm);
-        MPI_Bcast(initial_guess, n, MPI_DOUBLE, 0, comm); 
-        end_time = MPI_Wtime();
-        time = start_time - end_time;
-
+        gauss_jacobi(A, rhs_vec, initial_guess, n, max_iter, max_tol, rank, size, comm);
     }
     else{
         A = malloc(local_n * n * sizeof(double));
         rhs_vec = malloc(n * sizeof(double));
         initial_guess = calloc(n, sizeof(double));
-        result_vec = calloc(local_n, sizeof(double));
-        diag = malloc(local_n * sizeof(double));
-        temp = calloc(local_n, sizeof(double));        
+        // sol = calloc(n, sizeof(double));
+        gauss_jacobi(A, rhs_vec, initial_guess, n, max_iter, max_tol, rank, size, comm);
+    }
+    free(A);
+    free(rhs_vec);
+    free(initial_guess);
+    MPI_Finalize();
+    return 0;
+}
 
-        MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
-        MPI_Scatter(diag, local_n, MPI_DOUBLE, diag, local_n, MPI_DOUBLE, 0, comm);
-        MPI_Bcast(rhs_vec, n, MPI_DOUBLE, 0, comm);
-        MPI_Bcast(initial_guess, n, MPI_DOUBLE, 0, comm); 
+void gauss_jacobi(double* A, double* rhs_vec, double* initial_guess, int n, int max_iter, double max_tol, int rank, int size, MPI_Comm comm){
+    double start_time = 0.0;
+    double end_time = 0.0, time = 0.0;
+    int iter = 0.0;
+    double tol = 1.0;
+    double sum = 0.0;
+    int* sendcount=NULL;
+    int* displs=NULL; 
+    double* result_vec=NULL;
+    int flag = -1;
+    double* diag=NULL;
+    double* temp=NULL;
+    
+    // Load balancing
+    int rem = n % size;
+    int local_n = ceil(n/size) + (rank < rem ? 1 : 0);
+
+    diag = malloc(n * sizeof(double));
+    result_vec = calloc(local_n, sizeof(double));
+    temp = calloc(local_n, sizeof(double));
+    sendcount = malloc(size * sizeof(int));
+    displs = malloc(size * sizeof(int));
+
+    if (rank == 0){
+        for(size_t i = 0; i < n; i++){
+            diag[i] = A[i*n + i];
+            A[i*n + i] = 0.0;
+        }    
+    }
+    for(size_t i = 0; i < size; i++){
+        sendcount[i] = local_n*n;
     }
 
     start_time = MPI_Wtime();
-    while((tol > 1e-4) && (iter != max_iter)){
+    MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
+    MPI_Scatter(diag, local_n, MPI_DOUBLE, diag, local_n, MPI_DOUBLE, 0, comm);
+    MPI_Bcast(rhs_vec, n, MPI_DOUBLE, 0, comm);
+    MPI_Bcast(initial_guess, n, MPI_DOUBLE, 0, comm); 
+
+    while((tol > max_tol) && (iter != max_iter)){
         sum = 0.0;
         result_vec = matrix_vec_prod(A, initial_guess, n, result_vec, size, comm);
         for (size_t i = 0; i < local_n; i++){
@@ -86,28 +113,23 @@ int main(int argc, char **argv)
         iter++;
     }
     end_time = MPI_Wtime();
-    time += (start_time - end_time);
+    time = (start_time - end_time);
     if (rank == 0){
         if (iter == max_iter){
             printf("Failed to converge, max iterations reached!\n");
         }
         else{
             printf("Solution: \n");
-            // for (size_t i = 0; i < 100; i++){
-            //     printf("%f ", initial_guess[i]);
-            // }
+            for (size_t i = 0; i < 100; i++){
+                printf("%f ", initial_guess[i]);
+            }
         }
         printf("\nTime taken is: %f sec.\n", end_time - start_time);
     }
-    free(A);
-    free(rhs_vec);
     free(result_vec);
     free(temp);
     free(diag);
-    free(initial_guess);
-
-    MPI_Finalize();
-    return 0;
+    // return initial_guess;
 }
 
 double* matrix_vec_prod(double* A, double* vec, int n, double* result_vec, int size, MPI_Comm comm){
