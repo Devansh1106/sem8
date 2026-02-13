@@ -26,6 +26,7 @@ coordT2 = coord[Elem[2, :], :]
 
 # list of edges of triangle 2
 edgeT2 = [Elem[2,1] Elem[2,2]; Elem[2,2] Elem[2,3]; Elem[2,3] Elem[2,1]]
+println(edgeT2)
 
 # length of edge between node 2 to 3
 c = sqrt((coord[2, 1]-coord[2, 2])^2 + (coord[3, 1]-coord[3, 2])^2)
