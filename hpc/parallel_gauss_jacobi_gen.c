@@ -106,9 +106,9 @@ void gauss_jacobi(double* A, double* rhs_vec, double* initial_guess, int n, int 
         sum = 0.0;
         result_vec = matrix_vec_prod(A, initial_guess, n, result_vec, rank, size, comm);
         for (size_t i = 0; i < local_n; i++){
-            temp[i] = rhs_vec[rank*local_n + i] - result_vec[i];
+            temp[i] = rhs_vec[displs2[rank] + i] - result_vec[i];
             temp[i] = temp[i] / diag[i];
-            sum     += fabs(temp[i] - initial_guess[rank*local_n + i]);
+            sum     += fabs(temp[i] - initial_guess[displs2[rank] + i]);
         }
         MPI_Allgatherv(temp, local_n, MPI_DOUBLE, initial_guess, sendcount2, displs2, MPI_DOUBLE, comm);
         MPI_Allreduce(&sum, &tol, 1, MPI_DOUBLE, MPI_SUM, comm);
