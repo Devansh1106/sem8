@@ -11,7 +11,7 @@ typedef struct {
 } LinkedList;
 
 
-/* CREATE-NODE(k) */
+// CREATE-NODE(k) 
 Node* CREATE_NODE(int k) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->key = k;
@@ -19,7 +19,7 @@ Node* CREATE_NODE(int k) {
     return newNode;
 }
 
-/* LIST-SEARCH(L, k) */
+// LIST-SEARCH(L, k) 
 Node* LIST_SEARCH(LinkedList* L, int k) {
     Node* temp = L->head;
     while (temp != NULL) {
@@ -30,14 +30,14 @@ Node* LIST_SEARCH(LinkedList* L, int k) {
     return NULL;
 }
 
-/* LIST-INSERT-FRONT(L, x) */
+// LIST-INSERT-FRONT(L, x) 
 void LIST_INSERT_FRONT(LinkedList* L, Node* x) {
     x->next = L->head;
     L->head = x;
 }
 
 
-/* LIST-INSERT-TAIL(L, x) */
+// LIST-INSERT-TAIL(L, x) 
 void LIST_INSERT_TAIL(LinkedList* L, Node* x) {
     if (L->head == NULL) {
         L->head = x;
@@ -50,7 +50,7 @@ void LIST_INSERT_TAIL(LinkedList* L, Node* x) {
 }
 
 
-/* LIST-INSERT-AFTER(L, x, y) */
+// LIST-INSERT-AFTER(L, x, y) 
 void LIST_INSERT_AFTER(LinkedList* L, Node* x, int k) {
     Node* y = LIST_SEARCH(L, k);
     if (y == NULL)
@@ -60,7 +60,7 @@ void LIST_INSERT_AFTER(LinkedList* L, Node* x, int k) {
 }
 
 
-/* LIST-INSERT-BEFORE(L, x, y) */
+// LIST-INSERT-BEFORE(L, x, y) 
 void LIST_INSERT_BEFORE(LinkedList* L, Node* x, int k) {
     if (L->head == NULL)
         return;
@@ -86,34 +86,33 @@ void LIST_INSERT_BEFORE(LinkedList* L, Node* x, int k) {
 }
 
 
-/* LIST-DELETE(L, x) */
 int LIST_DELETE(LinkedList* L, int k) {
-    if (L->head == NULL)
+
+    Node* target = LIST_SEARCH(L, k);
+    if (target == NULL)
         return -1;
 
     Node* temp = L->head;
     Node* prev = NULL;
 
-    while (temp != NULL && temp->key != k) {
+    while (temp != target) {
         prev = temp;
         temp = temp->next;
     }
 
-    if (temp == NULL)
-        return -1;
-
     if (prev == NULL)
-        L->head = temp->next;
+        L->head = target->next;
     else
-        prev->next = temp->next;
+        prev->next = target->next;
 
-    int deletedKey = temp->key;
-    free(temp);
+    int deletedKey = target->key;
+    free(target);
     return deletedKey;
 }
 
 
-/* LIST-DELETE-FIRST(L) */
+
+// LIST-DELETE-FIRST(L) 
 int LIST_DELETE_FIRST(LinkedList* L) {
     if (L->head == NULL)
         return -1;
@@ -126,7 +125,7 @@ int LIST_DELETE_FIRST(LinkedList* L) {
 }
 
 
-/* LIST-DELETE-LAST(L) */
+// LIST-DELETE-LAST(L) 
 int LIST_DELETE_LAST(LinkedList* L) {
     if (L->head == NULL)
         return -1;
@@ -150,13 +149,15 @@ int LIST_DELETE_LAST(LinkedList* L) {
 }
 
 
-/* MAIN */
 int main() {
     LinkedList L;
     L.head = NULL;
 
     char ch;
     int x, y;
+
+    int outputs[1000];   // store results
+    int out_count = 0;   // number of stored outputs
 
     while (1) {
         scanf(" %c", &ch);
@@ -165,49 +166,76 @@ int main() {
             break;
 
         switch (ch) {
-
             case 'f':
                 scanf("%d", &x);
-                LIST_INSERT_FRONT(&L, CREATE_NODE(x));
+                if (x < -1000000 || x > 1000000) {
+                    outputs[out_count++] = -1;
+                } 
+                else {
+                    LIST_INSERT_FRONT(&L, CREATE_NODE(x));
+                }
                 break;
-
             case 't':
                 scanf("%d", &x);
-                LIST_INSERT_TAIL(&L, CREATE_NODE(x));
+                if (x < -1000000 || x > 1000000) {
+                    outputs[out_count++] = -1;
+                } 
+                else {
+                    LIST_INSERT_TAIL(&L, CREATE_NODE(x));
+                }
                 break;
-
             case 'a':
                 scanf("%d %d", &x, &y);
-                LIST_INSERT_AFTER(&L, CREATE_NODE(x), y);
+                if (x < -1000000 || x > 1000000 ||
+                    y < -1000000 || y > 1000000) {
+                    outputs[out_count++] = -1;
+                } 
+                else {
+                    LIST_INSERT_AFTER(&L, CREATE_NODE(x), y);
+                }
                 break;
-
             case 'b':
                 scanf("%d %d", &x, &y);
-                LIST_INSERT_BEFORE(&L, CREATE_NODE(x), y);
+                if (x < -1000000 || x > 1000000 ||
+                    y < -1000000 || y > 1000000) {
+                    outputs[out_count++] = -1;
+                } 
+                else {
+                    LIST_INSERT_BEFORE(&L, CREATE_NODE(x), y);
+                }
                 break;
 
             case 'd':
                 scanf("%d", &x);
-                printf("%d\n", LIST_DELETE(&L, x));
+                outputs[out_count++] = LIST_DELETE(&L, x);
                 break;
 
             case 'i':
-                printf("%d\n", LIST_DELETE_FIRST(&L));
+                outputs[out_count++] = LIST_DELETE_FIRST(&L);
                 break;
 
             case 'l':
-                printf("%d\n", LIST_DELETE_LAST(&L));
+                outputs[out_count++] = LIST_DELETE_LAST(&L);
                 break;
 
             case 's':
                 scanf("%d", &x);
                 if (LIST_SEARCH(&L, x) != NULL)
-                    printf("1\n");
+                    outputs[out_count++] = 1;
                 else
-                    printf("-1\n");
+                    outputs[out_count++] = -1;
+                break;
+            default:
+                outputs[out_count++] = -1;
                 break;
         }
     }
 
+    // Print everything after 'e'
+    for (int i = 0; i < out_count; i++) {
+        printf("%d\n", outputs[i]);
+    }
+
     return 0;
 }
+
