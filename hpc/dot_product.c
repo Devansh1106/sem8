@@ -8,24 +8,25 @@ int main()
 {
     int* a;
     int* b;
-    int* c;
-    time_t start, end;
+    int c = 0;
+    int n = 1e6;
+    double start, end;
     srand(3);
-    a = malloc(1e9 * sizeof(int));
-    b = malloc(1e9 * sizeof(int));
-    c = malloc(1e9 * sizeof(int));
-    for (size_t i = 0; i < 1e6; i++){
-        a[i] = rand() % 100;
-        b[i] = rand() % 100;
+    a = malloc(n * sizeof(int));
+    b = malloc(n * sizeof(int));
+    for (size_t i = 0; i < n; i++){
+        // a[i] = rand() % 1000;
+        // b[i] = rand() % 1000;
+        a[i] = 1;
+        b[i] = 1;
     }
-    start = time(NULL);
-    for (size_t i = 0; i < 1e6; i++){
-        c[i] = a[i] * b[i];
+    start = clock();
+    for (size_t i = 0; i < n; i++){
+        c += a[i] * b[i];
     }
-    end = time(NULL);
-    printf("%f seconds", difftime(end, start));
-    printf("\n");
-    printf("%d", c[10]);
+    end = clock();
+    printf("%f seconds\n", ((double)(end, start))/CLOCKS_PER_SEC);
+    printf("Dot product is: %d.\n", c);
 
     return 0;
 }
