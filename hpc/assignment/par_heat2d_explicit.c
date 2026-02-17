@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     double end_time     = 0.0, time = 0.0;
     /* This code has been tested for n = [10, 20, 40, 80] 
         Computed convergence rate is: ~ 2.00 */
-    int n               = 10;
+    int n               = 120;
     double* u_new       = NULL;
     double* u           = NULL;
     double* initial_guess = NULL;

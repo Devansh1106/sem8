@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     double end_time     = 0.0, time = 0.0;
     /* This code has been tested for n = [10, 20, 40, 80] 
         Computed convergence rate is: ~ 2.00 */
-    int n               = 10;
+    int n               = 20;
     int N               = n * n;
     double* A           = NULL;
     double* rhs_vec     = NULL;
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
             double y = i * dx;
             for (int j = 0; j < n; j++) {
                 double x = j * dx;
-                int row          = i*n + j;
+                int row            = i*n + j;
                 initial_guess[row] = sin(M_PI * x) * sin(M_PI * y);
                 // boundary nodes (Dirichlet u=0)
                 if (i == 0 || i == n-1 || j == 0 || j == n-1) {
