@@ -1,4 +1,8 @@
-/* Parallely solving heat eqn in 2D domain implicitly */
+/* Parallely solving heat eqn in 2D domain implicitly (BTCS) */
+
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +27,14 @@ double gauss_jacobi(double* A,
                     int size, 
                     MPI_Comm comm);
 
+void exact_solution_2d(double* u_exact,
+                       int n,
+                       double total_time);
+
+double compute_Linf_error(double* numerical,
+                          double* exact,
+                          int n);
+
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -33,7 +45,9 @@ int main(int argc, char **argv)
 
     double start_time   = 0.0;
     double end_time     = 0.0, time = 0.0;
-    int n               = 20;
+    /* This code has been tested for n = [10, 20, 40, 80] 
+        Computed convergence rate is: ~ 2.00 */
+    int n               = 10;
     int N               = n * n;
     double* A           = NULL;
     double* rhs_vec     = NULL;
@@ -61,9 +75,11 @@ int main(int argc, char **argv)
         A_copy          = malloc(N * N * sizeof(double));
 
         for (int i = 0; i < n; i++) {
+            double y = i * dx;
             for (int j = 0; j < n; j++) {
+                double x = j * dx;
                 int row          = i*n + j;
-                initial_guess[j] = 100.0;
+                initial_guess[row] = sin(M_PI * x) * sin(M_PI * y);
                 // boundary nodes (Dirichlet u=0)
                 if (i == 0 || i == n-1 || j == 0 || j == n-1) {
                     A[row*N + row] = 1.0;
@@ -104,12 +120,18 @@ int main(int argc, char **argv)
             printf("\nAt step %d \t Time taken is: %f sec.\n", step, time);
     }
     if (rank == 0){
-        for (size_t i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                printf("%6.2f ", initial_guess[i * n + j]);
-            }
-            printf("\n");
-        }
+        double* u_exact = malloc(n * n * sizeof(double));
+        exact_solution_2d(u_exact, n, total_time);
+        double Linf_error = compute_Linf_error(initial_guess, u_exact, n);
+        printf("L_inf error = %.10e\n", Linf_error);
+        free(u_exact);
+
+        // for (size_t i = 0; i < n; i++) {
+        //     for (int j = 0; j < n; j++) {
+        //         printf("%6.2f ", initial_guess[i * n + j]);
+        //     }
+        //     printf("\n");
+        // }
     }
 
     free(A);
@@ -255,4 +277,35 @@ double* matrix_vec_prod(double* A,
         }
     }
     return result_vec;
+}
+
+
+void exact_solution_2d(double* u_exact,
+                       int n,
+                       double total_time){
+    double dx = 1.0 / (n - 1);
+    for (int j = 0; j < n; j++) {
+        double y = j * dx;
+        for (int i = 0; i < n; i++) {
+            double x = i * dx;
+            u_exact[j*n + i] = sin(M_PI * x) *
+                               sin(M_PI * y) *
+                               exp(-2.0 * M_PI * M_PI * total_time);
+        }
+    }
+}
+
+double compute_Linf_error(double* numerical,
+                          double* exact,
+                          int n){
+    double max_error = 0.0;
+    for (int j = 0; j < n; j++) {
+        for (int i = 0; i < n; i++) {
+            double diff = fabs(numerical[j*n + i] -
+                               exact[j*n + i]);
+            if (diff > max_error)
+                max_error = diff;
+        }
+    }
+    return max_error;
 }

@@ -1,4 +1,8 @@
-/* Parallely solving heat eqn in 2D domain explicitly */
+/* Parallely solving heat eqn in 2D domain explicitly (FTCS) */
+
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +18,14 @@ void update_heat_2d(double* u_new,
                     int rank, int size,
                     MPI_Comm comm);
 
+void exact_solution_2d(double* u_exact,
+                       int n,
+                       double total_time);
+
+double compute_Linf_error(double* numerical,
+                          double* exact,
+                          int n);
+
 int main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
@@ -24,6 +36,8 @@ int main(int argc, char **argv)
 
     double start_time   = 0.0;
     double end_time     = 0.0, time = 0.0;
+    /* This code has been tested for n = [10, 20, 40, 80] 
+        Computed convergence rate is: ~ 2.00 */
     int n               = 10;
     double* u_new       = NULL;
     double* u           = NULL;
@@ -41,13 +55,22 @@ int main(int argc, char **argv)
     int base       = (n/size);
     int local_rows = base + (rank < rem ? 1 : 0);
 
-    // memory allocation
+    // memory allocation on each rank
     initial_guess = calloc((local_rows + 2) * n, sizeof(double));
     u_new         = calloc((local_rows + 2) * n, sizeof(double));
     if (rank == 0) {
         final_sol = malloc(n * n * sizeof(double));
-        for (size_t i = 0; i < n; i++){
-            initial_guess[n + i] = 100.0;
+    }
+
+    // Compute starting row for each rank
+    int start_row = (rank*base) + (rank < rem ? rank : rem);
+    // skip ghost row j = 0
+    for (int j = 1; j <= local_rows; j++) {
+        int global_row = start_row + (j-1);
+        double y = global_row*dx;
+        for (int i = 0; i < n; i++) {
+            double x = i * dx;
+            initial_guess[j*n + i] = sin(M_PI * x) * sin(M_PI * y);
         }
     }
     start_time = MPI_Wtime();
@@ -65,12 +88,19 @@ int main(int argc, char **argv)
     time        = end_time - start_time;
 
     if (rank == 0){
-        for (size_t i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                printf("%6.2f ", final_sol[i * n + j]);
-            }
-            printf("\n");
-        }
+        double* u_exact = malloc(n * n * sizeof(double));
+        exact_solution_2d(u_exact, n, total_time);
+        double Linf_error = compute_Linf_error(final_sol, u_exact, n);
+        printf("L_inf error = %.10e\n", Linf_error);
+        free(u_exact);
+
+        // priting the sol
+        // for (size_t i = 0; i < n; i++) {
+        //     for (int j = 0; j < n; j++) {
+        //         printf("%6.2f ", final_sol[i * n + j]);
+        //     }
+        //     printf("\n");
+        // }
         printf("Time taken: %f.\n", time);
     }
 
@@ -180,4 +210,34 @@ void update_heat_2d(double* u_new,
         free(recvcounts);
         free(displs);
     }
+}
+
+void exact_solution_2d(double* u_exact,
+                       int n,
+                       double total_time){
+    double dx = 1.0 / (n - 1);
+    for (int j = 0; j < n; j++) {
+        double y = j * dx;
+        for (int i = 0; i < n; i++) {
+            double x = i * dx;
+            u_exact[j*n + i] = sin(M_PI * x) *
+                               sin(M_PI * y) *
+                               exp(-2.0 * M_PI * M_PI * total_time);
+        }
+    }
+}
+
+double compute_Linf_error(double* numerical,
+                          double* exact,
+                          int n){
+    double max_error = 0.0;
+    for (int j = 0; j < n; j++) {
+        for (int i = 0; i < n; i++) {
+            double diff = fabs(numerical[j*n + i] -
+                               exact[j*n + i]);
+            if (diff > max_error)
+                max_error = diff;
+        }
+    }
+    return max_error;
 }
