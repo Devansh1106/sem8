@@ -3,8 +3,10 @@
 #include <omp.h>
 
 int main(int argc, char **argv){
-    int* a, b, c;
-    int i;
+    int* a;
+    int* b;
+    int* c;
+    // int i;
     a = calloc(100, sizeof(int));
     b = calloc(100, sizeof(int));
     c = calloc(100, sizeof(int));
@@ -12,7 +14,7 @@ int main(int argc, char **argv){
     #pragma omp parallel
     {
         #pragma omp for
-        for (size_t i = 0; i < 100; i++){
+        for (int i = 0; i < 100; i++){
             a[i] = b[i] + c[i];
         }
     }

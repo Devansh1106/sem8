@@ -117,7 +117,7 @@ void gauss_jacobi(double* A, double* rhs_vec, double* initial_guess, int n, int 
         iter++;
     }
     end_time = MPI_Wtime();
-    time = (start_time - end_time);
+    time = (end_time - start_time);
     if (rank == 0){
         if (iter == max_iter){
             printf("Failed to converge, max iterations reached!\n");
@@ -128,7 +128,7 @@ void gauss_jacobi(double* A, double* rhs_vec, double* initial_guess, int n, int 
                 printf("%f ", initial_guess[i]);
             }
         }
-        printf("\nTime taken is: %f sec.\n", end_time - start_time);
+        printf("\nTime taken is: %f sec.\n", time);
     }
     free(result_vec);
     free(temp);

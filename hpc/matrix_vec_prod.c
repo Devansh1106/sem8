@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         MPI_Scatter(A, (local_n * n), MPI_DOUBLE, A, (local_n * n), MPI_DOUBLE, 0, comm);
         MPI_Bcast(vec, n, MPI_DOUBLE, 0, comm); 
         end_time = MPI_Wtime();
-        time = start_time - end_time;
+        time = end_time - start_time;
     }
     else{
         A = malloc(local_n * n * sizeof(double));
@@ -48,18 +48,21 @@ int main(int argc, char **argv)
     start_time = MPI_Wtime();
     for(size_t i = 0; i < local_n; i++){
         for(size_t j = 0; j < n; j++){
+            // without this third loop, we won't see scalability because of low compute.
+            // for (int k = 0; k < 50; k++)
+            //     result_vec[i] += A[i*n + j] * vec[j];
             result_vec[i] += A[i * n + j] * vec[j];
         }
     }
     MPI_Gather(result_vec, local_n, MPI_DOUBLE, result_vec, local_n, MPI_DOUBLE, 0, comm);
     end_time = MPI_Wtime();
-    time += (start_time - end_time);
+    time += (end_time - start_time);
 
     if (rank == 0){
         // for (size_t i = 0; i < n; i++){
         //     printf("%f ", result_vec[i]);
         // }
-        printf("Time taken is: %f sec.\n", end_time - start_time);
+        printf("Time taken is: %f sec.\n", time);
     }
     free(A);
     free(vec);
