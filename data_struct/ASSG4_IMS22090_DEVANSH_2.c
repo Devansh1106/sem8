@@ -1,9 +1,11 @@
+// Infix to Postfix conversion using Stack in C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#define MAX 100
+#define MAX 1000
 
 // Stack structure
 typedef struct {
@@ -52,18 +54,18 @@ int precedence(char op) {
 }
 
 // Convert infix to postfix
-char* infixToPostfix(char *infix) {
+char* infixToPostfix(char* infix) {
     Stack s;
     initStack(&s);
     
-    char *postfix = (char *)malloc(strlen(infix) + 1);
+    char* postfix = (char*)malloc(strlen(infix) + 1);
     int k = 0;
     
     for (int i = 0; infix[i] != '\0'; i++) {
         char c = infix[i];
         
         // If operand, add to postfix
-        if (isalpha(c)) {
+        if (islower(c)) {
             postfix[k++] = c;
         }
         // If opening parenthesis, push to stack
@@ -79,8 +81,7 @@ char* infixToPostfix(char *infix) {
         }
         // If operator
         else if (c == '+' || c == '-' || c == '*' || c == '/') {
-            while (!isEmpty(&s) && peek(&s) != '(' && 
-                   precedence(peek(&s)) >= precedence(c)) {
+            while (!isEmpty(&s) && peek(&s) != '(' && precedence(peek(&s)) >= precedence(c)) {
                 postfix[k++] = pop(&s);
             }
             push(&s, c);

@@ -18,7 +18,6 @@ int main(int argc, char **argv)
 
     double* A=NULL;
     double* B=NULL;
-    int* vec=NULL;
     double* result_mat=NULL;
     int n = 700; 
     int local_n_rows = n/size;            // n % size should be 0 for now
@@ -60,7 +59,7 @@ int main(int argc, char **argv)
     }
     MPI_Gather(result_mat, (local_n_rows*n), MPI_DOUBLE, result_mat, (local_n_rows*n), MPI_DOUBLE, 0, comm);
     end_time = MPI_Wtime();
-    time += (start_time - end_time);
+    time += (end_time - start_time);
 
     if (rank == 0){
         // for (size_t i = 0; i < n; i++){
@@ -69,10 +68,10 @@ int main(int argc, char **argv)
         //     }
         //     printf("\n");
         // }
-        printf("\nTime taken is: %f sec.\n", end_time - start_time);
+        printf("\nTime taken is: %f sec.\n", time);
     }
     free(A);
-    free(vec);
+    free(B);
     free(result_mat);
 
     MPI_Finalize();

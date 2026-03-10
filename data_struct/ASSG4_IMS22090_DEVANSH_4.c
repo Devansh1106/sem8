@@ -1,18 +1,20 @@
+// Doubly Linked List implementation in C
+
 #include <stdio.h>
 #include <stdlib.h>
 
 typedef struct Node {
     int key;
-    struct Node *next;
-    struct Node *prev;
+    struct Node* next;
+    struct Node* prev;
 } Node;
 
 typedef struct {
-    Node *head;
+    Node* head;
 } List;
 
 Node* CREATE_NODE(int k) {
-    Node *new_node = (Node*)malloc(sizeof(Node));
+    Node* new_node = (Node*)malloc(sizeof(Node));
     new_node->key = k;
     new_node->next = NULL;
     new_node->prev = NULL;
@@ -20,7 +22,7 @@ Node* CREATE_NODE(int k) {
 }
 
 Node* LIST_SEARCH(List *L, int k) {
-    Node *current = L->head;
+    Node* current = L->head;
     while (current != NULL) {
         if (current->key == k)
             return current;
@@ -90,7 +92,7 @@ int LIST_DELETE_INITIAL(List *L) {
 int LIST_DELETE_LAST(List *L) {
     if (L->head == NULL)
         return -1;
-    Node *current = L->head;
+    Node* current = L->head;
     while (current->next != NULL)
         current = current->next;
     return LIST_DELETE(L, current);
@@ -102,51 +104,67 @@ int main() {
     char op;
     int k, k2;
 
+    // Store outputs 
+    int outputs[10000];
+    int out_count = 0;
+
     while (scanf(" %c", &op) == 1) {
         if (op == 'f') {
             scanf("%d", &k);
             Node *x = CREATE_NODE(k);
             LIST_INSERT_FRONT(&L, x);
-        } else if (op == 't') {
+        } 
+        else if (op == 't') {
             scanf("%d", &k);
             Node *x = CREATE_NODE(k);
             LIST_INSERT_TAIL(&L, x);
-        } else if (op == 'a') {
+        } 
+        else if (op == 'a') {
             scanf("%d %d", &k, &k2);
             Node *y = LIST_SEARCH(&L, k2);
             if (y != NULL) {
                 Node *x = CREATE_NODE(k);
                 LIST_INSERT_AFTER(&L, x, y);
             }
-        } else if (op == 'b') {
+        } 
+        else if (op == 'b') {
             scanf("%d %d", &k, &k2);
             Node *y = LIST_SEARCH(&L, k2);
             if (y != NULL) {
                 Node *x = CREATE_NODE(k);
                 LIST_INSERT_BEFORE(&L, x, y);
             }
-        } else if (op == 'd') {
+        } 
+        else if (op == 'd') {
             scanf("%d", &k);
             Node *x = LIST_SEARCH(&L, k);
             if (x != NULL)
-                printf("%d\n", LIST_DELETE(&L, x));
+                outputs[out_count++] = LIST_DELETE(&L, x);
             else
-                printf("-1\n");
-        } else if (op == 'i') {
+                outputs[out_count++] = -1;
+        } 
+        else if (op == 'i') {
             int deleted = LIST_DELETE_INITIAL(&L);
-            printf("%d\n", deleted);
-        } else if (op == 'l') {
+            outputs[out_count++] = deleted;
+        } 
+        else if (op == 'l') {
             int deleted = LIST_DELETE_LAST(&L);
-            printf("%d\n", deleted);
-        } else if (op == 's') {
+            outputs[out_count++] = deleted;
+        } 
+        else if (op == 's') {
             scanf("%d", &k);
             if (LIST_SEARCH(&L, k) != NULL)
-                printf("1\n");
+                outputs[out_count++] = 1;
             else
-                printf("-1\n");
-        } else if (op == 'e') {
+                outputs[out_count++] = -1;
+        } 
+        else if (op == 'e') {
             break;
         }
+    }
+    // Print everything after termination 
+    for (int i = 0; i < out_count; i++) {
+        printf("%d\n", outputs[i]);
     }
 
     return 0;

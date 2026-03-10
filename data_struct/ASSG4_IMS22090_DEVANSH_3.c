@@ -1,9 +1,11 @@
+// Postfix expression evaluation in C
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#define MAX 100
+#define MAX 1000
 
 int stack[MAX];
 int top = -1;
@@ -21,13 +23,14 @@ int pop() {
     return 0;
 }
 
-int EvaluatePostfix(char *expr) {
-    char *token = strtok(expr, " ");
+int EvaluatePostfix(char* expr) {
+    char* token = strtok(expr, " ");
     
     while (token != NULL) {
         if (isdigit(token[0])) {
             push(atoi(token));
-        } else {
+        } 
+        else {
             int b = pop();
             int a = pop();
             int result;
@@ -57,7 +60,7 @@ int EvaluatePostfix(char *expr) {
 int main() {
     char expr[MAX];
     fgets(expr, MAX, stdin);
-    expr[strcspn(expr, "\n")] = 0;
+    expr[strcspn(expr, "\n")] = '\0';
     
     char expr_copy[MAX];
     strcpy(expr_copy, expr);

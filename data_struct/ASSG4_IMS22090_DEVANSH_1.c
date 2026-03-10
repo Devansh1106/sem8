@@ -20,16 +20,13 @@ void init(Stack *s) {
 // Push operation
 void push(Stack *s, char c) {
     if (s->top == MAX - 1) {
-        return; // stack overflow
+        return; 
     }
     s->arr[++(s->top)] = c;
 }
 
 // Pop operation
 char pop(Stack *s) {
-    if (s->top == -1) {
-        return '\0'; // stack underflow
-    }
     return s->arr[(s->top)--];
 }
 
@@ -54,16 +51,12 @@ int IsPalindrome(char str[]) {
             return 0;
         }
     }
-
     return 1;
 }
 
 int main() {
     char str[MAX];
-
     scanf("%s", str);
-
     printf("%d\n", IsPalindrome(str));
-
     return 0;
 }
