@@ -7,7 +7,7 @@
 
 int main ()
 {
-    int n = 64;
+    int n = 2048;
     double* temp = NULL;
     double* u = (double*) calloc(n, sizeof(double)); // boundary condition 0.0 is already satisfied
     double* sol = (double*) calloc(n, sizeof(double));
@@ -17,10 +17,14 @@ int main ()
     double alpha = 0.25;
     double dt = (alpha * h * h) / c;
     double final_t = 0.2;
+    printf("Time step size is %0.12f\n", dt);
+    printf("Step size in space is %0.12f\n", h);
+    printf("Alpha is %f\n", alpha);
     
     int iter = round(final_t/dt);
     double global_sum = 0.0;
 
+    double start_time = omp_get_wtime();
     #pragma omp parallel
     {
         double local_sum = 0.0;
@@ -53,8 +57,10 @@ int main ()
         #pragma omp critical
         global_sum += local_sum;
     }
+    double end_time = omp_get_wtime();
+    printf("Execution time: %0.12f seconds\n", end_time - start_time);
 
-    printf("L^2 error is %0.6f\n", sqrt(global_sum*h));
+    printf("L^2 error is %0.12f\n", sqrt(global_sum*h));
 
     free(u); free(sol); free(exact_sol);
     return 0;
