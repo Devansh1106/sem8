@@ -1,6 +1,8 @@
 *.zip
-*.png
+# *.png
 *.vscode
 *.ipynb_checkpoints
-*.pdf
+# *.pdf
 *.out
+*.gz
+*aux
