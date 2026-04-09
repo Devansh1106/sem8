@@ -22,7 +22,7 @@
 \end{frame}
 
 % --- Slide 2: Abstract/Overview ---
-\begin{frame}{Timeline of the talk}
+\begin{frame}{Outline of the talk}
     \begin{itemize}
         \item Model Problem: 1D steady-state convection-diffusion equation. \vspace{0.3cm}
         \item Weak formulation and standard Galerkin FEM.\vspace{0.3cm}
@@ -123,7 +123,7 @@ We can not have divergence-free field and reaction coefficient to be 0 simultane
 \end{frame}
 
 \begin{frame}{Local Inverse Inequality}
-% \kern-0.4em
+\kern-1em
 \begin{lemma}[Local Inverse Inequality]
     For the discrete finite element space $V_h$, there exists a constant $\mu_{\text{inv}} > 0$, independent of the element $I_i$ and the local mesh size $h_{I_i}$, such that
     \begin{equation*}
@@ -131,6 +131,7 @@ We can not have divergence-free field and reaction coefficient to be 0 simultane
     \end{equation*}
 \end{lemma}
 \pause
+\kern-0.8em
 \begin{lemma}\label{lem:sdparam}
     Let the SD parameter $\tau_i$ satisfy
     $$ 0 < \tau_i \leq \frac{1}{2} \frac{h_{I_i}^2}{\eps\mu_{inv}^2}$$
@@ -146,9 +147,12 @@ We can not have divergence-free field and reaction coefficient to be 0 simultane
 \kern-0.6em
 \begin{proof}
 \kern-1.2em
-     \begin{align*}
+    \begin{align*}
         a_{SUPG}(v_h, v_h) = \epsilon \|\nabla v_h\|^2_{L^2} + (\textbf{b} \cdot \nabla v_h, v_h) &- \sum_{i} \tau_i (\eps\Delta v_h, \textbf{b} \cdot \nabla v_h)_{I_i}  \\ &+ \sum_{i} \tau_i \|\textbf{b} \cdot \nabla v_h\|_{I_i}^2
     \end{align*}
+% \kern-1em
+
+$b \cdot \nabla(v_h^2) = 2v_h(b \cdot \nabla v_h)$ and $\nabla \cdot (bv_h^2) = (\nabla \cdot b)v_h^2 + b \cdot \nabla(v_h^2)$
 \end{proof}
 \pause
 Stability estimate:
