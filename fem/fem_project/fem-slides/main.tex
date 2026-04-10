@@ -11,7 +11,7 @@
 % --- Metadata ---
 \title[FEM for Convection-Diffusion]{Finite Element Approximation of Convection-Diffusion Equation}
 \subtitle{Vanishing Diffusion Limit and SUPG Stabilization}
-\author{Devansh Tripathi}
+\author[Devansh Tripathi]{Devansh Tripathi \\ IISER TVM \\ \vspace{1.4em} Instructor: Dr. Asha K. Dond \\ SoM, IISER TVM}
 \date{\today}
 
 \begin{document}
@@ -280,14 +280,15 @@ $$Pe_{I_i} := \frac{\|b\|_{L^\infty(I_i)} h_{I_i}}{2\epsilon} = \frac{\text{Adve
 \begin{frame}{Error Comparison ($h=0.0005$)}
     \centering
     \begin{table}
-        \begin{tabular}{l l l l l l} % Change: Added two 'l' here
+        \begin{tabular}{l l l l l l l} % Change: Added two 'l' here
             \toprule
-            $\epsilon$ & Method & $||u-u_h||_{L^2}$ & $|u-u_h|_{H^1}$ & CR $L^2$ & CR $H^1$\\
+            $\epsilon$ & Method & $||u-u_h||_{L^2}$ & $|u-u_h|_{H^1}$ & RoC $L^2$ & RoC $H^1$\\
             \midrule
-            $10^{-1}$ & Galerkin & 3.89e-7 & 3.22e-3 & 1.99 & 0.99\\
+            $10^{-1}$ & Galerkin & 3.89e-7 & 3.22e-3 & 1.99 & 0.99 \\
             $10^{-3}$ & Galerkin & 3.86e-4 & 3.2042 & 1.93 & 0.93 \\
             $10^{-6}$ & Galerkin & 0.1012 & 713.613 & 1.50 & 0.28 \\
-            \midrule \pause
+            \midrule 
+            \pause
             $10^{-1}$ & SUPG & 3.94e-4 & 5.10e-3 & ~~-- & ~~-- \\
             $10^{-3}$ & SUPG & 3.75e-3 & 4.385 & ~~-- & ~~-- \\
             $10^{-6}$ & SUPG & 1.15e-2 & 123.33 & ~~-- & ~~-- \\
